@@ -45,4 +45,14 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class);
+    }
+
+    public function games()
+    {
+        return $this->hasMany(Game::class,'created_user_id','id');
+    }
 }
