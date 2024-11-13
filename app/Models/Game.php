@@ -20,9 +20,14 @@ class Game extends Model
         return $this->hasMany(Transaction::class);
     }
 
-    public function users()
+    public function user()
     {
         return $this->hasOne(User::class,'id','created_user_id');
+    }
+
+    public function multiplayerGamesPlayed()
+    {
+        return $this->hasMany(MultiplayerGamePlayed::class, 'game_id', 'id');
     }
 
 }
