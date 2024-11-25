@@ -13,6 +13,7 @@ class Game extends Model
         'release_date',
         'created_user_id',
         'winner_user_id',
+        'board_id',
     ];
 
     public function transactions()
@@ -29,5 +30,16 @@ class Game extends Model
     {
         return $this->hasMany(MultiplayerGamePlayed::class, 'game_id', 'id');
     }
+
+    public function winner()
+    {
+        return $this->hasOne(User::class, 'id', 'winner_user_id');
+    }
+    
+    public function board()
+    {
+        return $this->hasOne(Board::class, 'id', 'board_id');
+    }
+
 
 }
