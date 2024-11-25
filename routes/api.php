@@ -12,30 +12,27 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
+Route::get('/users', [UserController::class, 'index']);
+Route::get('/users/{user}', [UserController::class, 'show']);
+Route::get('/users/{user}/transactions', [UserController::class, 'transactions']);
+Route::get('/users/{user}/singleplayerGames', [UserController::class, 'games']);
+Route::get('/users/{user}/multiplayerGames', [UserController::class, 'multiplayerGames']);
+Route::put('/users/{user}', [UserController::class, 'update']);
+Route::delete('/users/{user}', [UserController::class, 'destroy']);
+Route::get('/transactions', [TransactionController::class, 'index']);
+Route::get('/transactions/{transaction}', [TransactionController::class, 'show']);
+Route::post('/transactions', [TransactionController::class, 'store']);
+Route::get('/games', [GameController::class, 'index']);
+Route::get('/games/{game}', [GameController::class, 'show']);
+Route::post('/games', [GameController::class, 'store']);
+Route::put('/games/{game}', [GameController::class, 'update']);
+
+Route::post('/multiplayerGamesPlayed', [MultiplayerGamePlayedController::class, 'store']);
+
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/auth/logout', [AuthController::class, 'logout']);
     Route::post('/auth/refreshtoken', [AuthController::class, 'refreshToken']);
 
-    Route::get('/users', [UserController::class, 'index']);
-    Route::get('/users/{user}', [UserController::class, 'show']);
-    Route::get('/users/{user}/transactions', [UserController::class, 'transactions']);
-    Route::get('/users/{user}/singleplayerGames', [UserController::class, 'games']);
-    Route::get('/users/{user}/multiplayerGames', [UserController::class, 'multiplayerGames']);
-    Route::put('/users/{user}', [UserController::class, 'update']);
-    Route::delete('/users/{user}', [UserController::class, 'destroy']);
-
-
-    Route::get('/transactions', [TransactionController::class, 'index']);
-    Route::get('/transactions/{transaction}', [TransactionController::class, 'show']);
-    Route::post('/transactions', [TransactionController::class, 'store']);
-
-
-    Route::get('/games', [GameController::class, 'index']);
-    Route::get('/games/{game}', [GameController::class, 'show']);
-    Route::post('/games', [GameController::class, 'store']);
-    Route::put('/games/{game}', [GameController::class, 'update']);
-
-    Route::post('/multiplayerGamesPlayed', [MultiplayerGamePlayedController::class, 'store']);
 });
 Route::post('/auth/login', [AuthController::class, 'login']);
 

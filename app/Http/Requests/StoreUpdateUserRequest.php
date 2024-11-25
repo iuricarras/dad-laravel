@@ -25,7 +25,8 @@ class StoreUpdateUserRequest extends FormRequest
             'name' => 'required|string|min:5',
             'email' => 'required|email',
             'nickname' => 'required|string|min:3',
-            'password' => 'string|min:3'
+            'password' => 'nullable|string|min:3',
+            'blocked' => 'required|boolean',
         ];
     }
 }

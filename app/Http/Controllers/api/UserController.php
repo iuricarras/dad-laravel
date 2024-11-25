@@ -16,12 +16,12 @@ class UserController extends Controller
 
     public function index()
     {
-        return UserResource::collection(User::get());
+        return User::get();
     }
 
     public function show(User $user)
     {
-        return new UserResource($user);
+        return $user;
     }
 
     public function transactions(User $user)
@@ -45,7 +45,7 @@ class UserController extends Controller
 
     public function update(StoreUpdateUserRequest $request, User $user)
     {
-        
+
         $user->update($request->validated());
 
         return new UserResource($user);
