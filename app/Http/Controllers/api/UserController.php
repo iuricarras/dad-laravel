@@ -7,12 +7,12 @@ use App\Http\Requests\StoreUpdateUserRequest;
 use App\Http\Resources\UserResource;
 use App\Models\Game;
 use App\Models\User;
-use Illuminate\Database\Eloquent\SoftDeletes;
+
 use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
-    use SoftDeletes;
+
 
     public function index()
     {
@@ -56,7 +56,9 @@ class UserController extends Controller
         if($user->transactions()->count() > 0 || $user->games()->count() > 0)
         {
             $user->delete();
-            return response()->json(['error' => 'User has transactions or games, soft deleted'], 409);
+            return response()->json([
+                'message' => 'User has transactions or games, soft deleted.',
+            ], 200);
         }else{
             $user->forceDelete();
         }
