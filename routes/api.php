@@ -25,6 +25,13 @@ Route::delete('/users/{user}', [UserController::class, 'destroy']);
 
 Route::get('/games/topSinglePlayer', [GameController::class, 'topSinglePlayerGames']);
 Route::get('/games/topMultiplayer', [GameController::class, 'topMultiplayerGames']);
+Route::get('/games/scoreboard/{user}', [GameController::class, 'personalScoreboard']);
+Route::get('/games-history/{user}', [GameController::class, 'gameHistory']);
+
+
+
+Route::get('/scoreboard/{user}', [UserController::class, 'getPersonalScoreboard']);
+
 
 Route::get('/boards', [BoardController::class, 'fetchBoards']);
 Route::get('/boards/all', [BoardController::class, 'index']);
