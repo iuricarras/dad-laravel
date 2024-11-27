@@ -24,6 +24,11 @@ class UserController extends Controller
         return $user;
     }
 
+    public function showMe(Request $request)
+    {
+        return new UserResource($request->user());
+    }
+
     public function transactions(User $user)
     {
         return $user->transactions;
