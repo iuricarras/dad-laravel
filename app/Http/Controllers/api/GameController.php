@@ -48,7 +48,10 @@ class GameController extends Controller
     public function topSinglePlayerGames(Request $request)
     {
         $boardId = $request->input('board_id');
-        $query = Game::where('type', 'S')->whereNotNull('total_time');
+        $query = Game::where('type', 'S')->whereNotNull('total_time')
+                        ->whereHas('user', function ($query) {
+                            $query->whereNULL('deleted_at');
+                        });
 
         if ($boardId) {
             $query->where('board_id', $boardId);
@@ -69,7 +72,11 @@ class GameController extends Controller
         $boardId = $request->input('board_id');
 
         $query = Game::where('type', 'M')
-            ->whereNotNull('winner_user_id');
+            ->whereNotNull('winner_user_id')
+            ->whereHas('user', function ($query) {
+                $query->whereNULL('deleted_at');
+            });
+
 
         if ($boardId) {
             $query->where('board_id', $boardId);

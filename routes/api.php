@@ -15,13 +15,6 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 
-Route::get('/users', [UserController::class, 'index']);
-Route::get('/users/{user}', [UserController::class, 'show']);
-Route::get('/users/{user}/transactions', [UserController::class, 'transactions']);
-Route::get('/users/{user}/singleplayerGames', [UserController::class, 'games']);
-Route::get('/users/{user}/multiplayerGames', [UserController::class, 'multiplayerGames']);
-Route::put('/users/{user}', [UserController::class, 'update']);
-Route::delete('/users/{user}', [UserController::class, 'destroy']);
 
 Route::get('/games/topSinglePlayer', [GameController::class, 'topSinglePlayerGames']);
 Route::get('/games/topMultiplayer', [GameController::class, 'topMultiplayerGames']);
@@ -37,7 +30,7 @@ Route::get('/boards', [BoardController::class, 'fetchBoards']);
 Route::get('/boards/all', [BoardController::class, 'index']);
 
 Route::post('/transactions', [TransactionController::class, 'store']);
-Route::get('/transactions', [TransactionController::class, 'index']);
+
 Route::get('/transactions/{transaction}', [TransactionController::class, 'show']);
 
 Route::get('/statistics', [StatisticsController::class, 'index']);
@@ -56,6 +49,17 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/users/me', [UserController::class , 'showMe']);
     Route::post('/games', [GameController::class, 'store']);
     Route::put('/games/{game}', [GameController::class, 'update']);
+    Route::get('/transactions', [TransactionController::class, 'index']);
+    Route::get('/users', [UserController::class, 'index']);
+    Route::get('/users/{user}', [UserController::class, 'show']);
+    Route::get('/users/{user}/transactions', [UserController::class, 'transactions']);
+    Route::get('/users/{user}/singleplayerGames', [UserController::class, 'games']);
+    Route::get('/users/{user}/multiplayerGames', [UserController::class, 'multiplayerGames']);
+    Route::put('/users/{user}', [UserController::class, 'update']);
+    Route::delete('/users/{user}', [UserController::class, 'destroy']);
+
+
+
     Route::post('/multiplayerGamesPlayed', [MultiplayerGamePlayedController::class, 'store']);
 });
 Route::post('/auth/login', [AuthController::class, 'login']);
