@@ -7,13 +7,14 @@ use Illuminate\Database\Eloquent\Model;
 class Game extends Model
 {
     protected $fillable = [
-        'name',
-        'price',
-        'genre',
-        'release_date',
+        'type',
+        'status',
+        'began_at',
+        'ended_at',
         'created_user_id',
         'winner_user_id',
         'board_id',
+        'total_time'
     ];
 
     public function transactions()

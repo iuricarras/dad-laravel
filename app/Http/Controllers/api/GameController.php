@@ -4,8 +4,11 @@ namespace App\Http\Controllers\api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreUpdateGameRequest;
+use App\Http\Resources\GameResource;
 use App\Models\Board;
 use App\Models\Game;
+use Carbon\Carbon;
+use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -24,15 +27,23 @@ class GameController extends Controller
     public function store(StoreUpdateGameRequest $request)
     {
         $data = $request->validated();
-        $data['user_id'] = $request->user()->id;
+        $time =  new Carbon($request->input('began_at'));
+        $data['began_at'] = $time->toDateTimeString();
+        $data['created_user_id'] = 7;
+        #$data['user_id'] = $request->user()->id;
         $game = Game::create($data);
-        return $game;
+        return new GameResource($game);
     }  
 
     public function update(StoreUpdateGameRequest $request, Game $game)
     {
-        $game->update($request->validated());
-        return $game;
+        $data = $request->validated();
+        if($request->input('ended_at') != null){
+            $time =  new Carbon($request->input('ended_at'));
+            $data['ended_at'] = $time->toDateTimeString();
+        }
+        $game->update($data);
+        return new GameResource($game);
     }
 
     public function topSinglePlayerGames(Request $request)
