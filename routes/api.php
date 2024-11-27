@@ -48,18 +48,14 @@ Route::get('/statistics/purchases-per-month', [StatisticsController::class, 'pur
 
 Route::get('/games', [GameController::class, 'index']);
     Route::get('/games/{game}', [GameController::class, 'show']);
-    Route::post('/games', [GameController::class, 'store']);
-    Route::put('/games/{game}', [GameController::class, 'update']);
+
 
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/auth/logout', [AuthController::class, 'logout']);
     Route::post('/auth/refreshtoken', [AuthController::class, 'refreshToken']);
     Route::get('/users/me', [UserController::class , 'showMe']);
-
-
-
-
-
+    Route::post('/games', [GameController::class, 'store']);
+    Route::put('/games/{game}', [GameController::class, 'update']);
     Route::post('/multiplayerGamesPlayed', [MultiplayerGamePlayedController::class, 'store']);
 });
 Route::post('/auth/login', [AuthController::class, 'login']);

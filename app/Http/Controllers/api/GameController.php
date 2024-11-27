@@ -29,8 +29,7 @@ class GameController extends Controller
         $data = $request->validated();
         $time =  new Carbon($request->input('began_at'));
         $data['began_at'] = $time->toDateTimeString();
-        $data['created_user_id'] = 7;
-        #$data['user_id'] = $request->user()->id;
+        $data['created_user_id'] = $request->user()->id;
         $game = Game::create($data);
         return new GameResource($game);
     }  
