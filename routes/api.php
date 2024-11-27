@@ -16,7 +16,7 @@ Route::get('/user', function (Request $request) {
 
 
 Route::get('/users', [UserController::class, 'index']);
-Route::get('/users/{user}', [UserController::class, 'show']);
+
 Route::get('/users/{user}/transactions', [UserController::class, 'transactions']);
 Route::get('/users/{user}/singleplayerGames', [UserController::class, 'games']);
 Route::get('/users/{user}/multiplayerGames', [UserController::class, 'multiplayerGames']);
@@ -55,6 +55,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/auth/logout', [AuthController::class, 'logout']);
     Route::post('/auth/refreshtoken', [AuthController::class, 'refreshToken']);
     Route::get('/users/me', [UserController::class , 'showMe']);
+    Route::get('/users/{user}', [UserController::class, 'show']);
 
 
 
