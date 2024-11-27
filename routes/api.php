@@ -26,11 +26,7 @@ Route::delete('/users/{user}', [UserController::class, 'destroy']);
 Route::get('/games/topSinglePlayer', [GameController::class, 'topSinglePlayerGames']);
 Route::get('/games/topMultiplayer', [GameController::class, 'topMultiplayerGames']);
 Route::get('/games/scoreboard/{user}', [GameController::class, 'personalScoreboard']);
-Route::get('/games-history/{user}', [GameController::class, 'gameHistory']);
 
-
-
-Route::get('/scoreboard/{user}', [UserController::class, 'getPersonalScoreboard']);
 
 
 Route::get('/boards', [BoardController::class, 'fetchBoards']);
@@ -55,7 +51,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/auth/logout', [AuthController::class, 'logout']);
     Route::post('/auth/refreshtoken', [AuthController::class, 'refreshToken']);
     Route::get('/users/me', [UserController::class , 'showMe']);
-
+    Route::get('/scoreboard', [GameController::class, 'personalScoreboard']);
+    Route::get('/games-history', [GameController::class, 'gameHistory']);
 
 
 

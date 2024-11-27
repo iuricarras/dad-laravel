@@ -101,53 +101,59 @@ class GameController extends Controller
     }
 
     
-    public function personalScoreboard(Request $request, $userId)
+    public function personalScoreboard(Request $request)
+{
+    $userId = $request->user()->id; 
+
+    $singlePlayerData = Game::where('type', 'S')
+        ->where('created_user_id', $userId)
+        ->select('board_id', 
+            DB::raw('MIN(total_time) as best_time'))
+        ->groupBy('board_id')
+        ->with('board:id,board_cols,board_rows') 
+        ->orderBy(DB::raw('(SELECT board_cols FROM boards WHERE boards.id = games.board_id)'), 'asc')
+        ->get();
+
+    $totalVictories = Game::where('type', 'M')
+        ->where('winner_user_id', $userId)
+        ->count();
+
+    $totalLosses = Game::where('type', 'M')
+        ->whereHas('multiplayerGamesPlayed', function ($query) use ($userId) {
+            $query->where('user_id', $userId);
+        })
+        ->where('winner_user_id', '!=', $userId)
+        ->count();
+
+    return response()->json([
+        'single_player' => $singlePlayerData,
+        'multiplayer' => [
+            'total_victories' => $totalVictories,
+            'total_losses' => $totalLosses,
+        ],
+    ]);
+}
+
+    
+
+    public function gameHistory(Request $request)
     {
-        
-        $singlePlayerData = Game::where('type', 'S')
-            ->where('created_user_id', $userId)
-            ->select('board_id', 
-                DB::raw('MIN(total_time) as best_time'), )
-            ->groupBy('board_id')
-            ->with('board:id,board_cols,board_rows')
-            ->get();
+        $userId = $request->user()->id;
 
-        
-        $totalVictories = Game::where('type', 'M')
-            ->where('winner_user_id', $userId)
-            ->count();
+        $games = Game::where(function ($query) use ($userId) {
+            $query->where('created_user_id', $userId)
+                ->orWhereHas('multiplayerGamesPlayed', function ($q) use ($userId) {
+                    $q->where('user_id', $userId);
+                });
+        })
+        ->with('board:id,board_cols,board_rows')
+        ->select('id', 'type', 'status', 'began_at', 'ended_at', 'total_time', 'board_id', 'created_at')
+        ->orderBy('created_at', 'desc')
+        ->get();
 
-        $totalLosses = Game::where('type', 'M')
-            ->whereHas('multiplayerGamesPlayed', function ($query) use ($userId) {
-                $query->where('user_id', $userId);
-            })
-            ->where('winner_user_id', '!=', $userId)
-            ->count();
-
-        return response()->json([
-            'single_player' => $singlePlayerData,
-            'multiplayer' => [
-                'total_victories' => $totalVictories,
-                'total_losses' => $totalLosses,
-            ],
-        ]);
+        return response()->json($games);
     }
 
-    public function gameHistory($userId)
-{
-    $games = Game::where(function ($query) use ($userId) {
-        $query->where('created_user_id', $userId)
-              ->orWhereHas('multiplayerGamesPlayed', function ($q) use ($userId) {
-                  $q->where('user_id', $userId);
-              });
-    })
-    ->with('board:id,board_cols,board_rows')
-    ->select('id', 'type', 'status', 'began_at', 'ended_at', 'total_time', 'board_id', 'created_at')
-    ->orderBy('created_at', 'desc')
-    ->get();
-
-    return response()->json($games);
-}
 
 
 }
