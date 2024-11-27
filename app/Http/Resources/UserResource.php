@@ -23,7 +23,7 @@ class UserResource extends JsonResource
             'blocked' => $this->blocked,
             'brain_coins_balance' => $this->brain_coins_balance,
             'deleted_at' => $this->deleted_at,
-            'photoFileName' => $this->photo_url
+            'photo_filename' => $this->photo_filename
         ];
     }
 }
