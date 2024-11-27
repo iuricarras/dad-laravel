@@ -36,7 +36,7 @@ class AuthController extends Controller
             ['*'],
             now()->addHours(2)
         )->plainTextToken;
-        return response()->json(['token' => $token]);
+        return response()->json(['token' => $token, 'user' => $request->user()]);
     }
     public function logout(Request $request)
     {
