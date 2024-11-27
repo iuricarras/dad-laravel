@@ -21,6 +21,7 @@ class GameResource extends JsonResource
             'status' => $this->status,
             'total_time' => $this->total_time,
             'board_id' => $this->board_id,
+            'custom' => $this->custom,
         ];
     }
 }
