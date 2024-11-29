@@ -6,11 +6,16 @@ use Illuminate\Database\Eloquent\Model;
 
 class Transaction extends Model
 {
+    public $timestamps = false;
     protected $fillable = [
-        'user_id',
-        'amount',
         'type',
-        'description',
+        'transaction_datetime',
+        'user_id',
+        'game_id',
+        'euros',
+        'payment_type',
+        'payment_reference',
+        'brain_coins',
     ];
 
     public function user()

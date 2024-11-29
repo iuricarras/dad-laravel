@@ -3,9 +3,10 @@
 namespace App\Http\Controllers\api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StoreUpdateTransactionRequest;
+use App\Http\Requests\StoreTransactionRequest;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 class TransactionController extends Controller
 {
@@ -19,12 +20,19 @@ class TransactionController extends Controller
         return $transaction;
     }
 
-    public function store(StoreUpdateTransactionRequest $request)
+    public function store(StoreTransactionRequest $request)
     {
         $data = $request->validated();
-        $data['user_id'] = $request->user()->id;
+        $data['transaction_datetime'] = Carbon::parse($data['transaction_datetime'])->format('Y-m-d H:i:s'); // Converte para o formato MySQL
+
+        // Criação da transação
         $transaction = Transaction::create($data);
-        return $transaction;
+
+        return response()->json([
+            'message' => 'Transaction created successfully.',
+            'data' => $transaction,
+        ], 201);
     }
+
 
 }

@@ -27,6 +27,7 @@ class StoreUpdateUserRequest extends FormRequest
             'nickname' => 'required|string|min:3',
             'password' => 'nullable|string|min:3',
             'blocked' => 'required|boolean',
+            'brain_coins_balance' => 'nullable|integer',
         ];
     }
 }
