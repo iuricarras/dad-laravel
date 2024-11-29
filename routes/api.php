@@ -53,6 +53,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/users', [UserController::class, 'index']);
     Route::get('/users/{user}', [UserController::class, 'show']);
     Route::get('/users/{user}/transactions', [UserController::class, 'transactions']);
+    Route::get('/users/{user}/games', [UserController::class, 'games']);
     Route::get('/users/{user}/singleplayerGames', [UserController::class, 'games']);
     Route::get('/users/{user}/multiplayerGames', [UserController::class, 'multiplayerGames']);
     Route::put('/users/{user}', [UserController::class, 'update']);

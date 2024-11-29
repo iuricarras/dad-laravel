@@ -33,6 +33,37 @@ class UserController extends Controller
     {
         return $user->transactions;
     }
+    public function games(User $user)
+    {
+        // Busca todos os jogos do usuário
+        $games = $user->games()
+            ->with('board') // Adiciona a relação com a tabela 'boards'
+            ->orderBy('began_at', 'desc')
+            ->get();
+
+        // Mapeia para adicionar as informações do board dentro de cada jogo
+        $gamesWithBoardDetails = $games->map(function ($game) {
+            return [
+                'id' => $game->id,
+                'type' => $game->type,
+                'created_user_id' => $game->created_user_id,
+                'winner_user_id' => $game->winner_user_id,
+                'status' => $game->status,
+                'began_at' => $game->began_at,
+                'ended_at' => $game->ended_at,
+                'total_time' => $game->total_time,
+                'board' => [
+                    'board_id' => $game->board_id,
+                    'board_cols' => $game->board->board_cols, // Número de colunas do board
+                    'board_rows' => $game->board->board_rows, // Número de linhas do board
+                ],
+            ];
+        });
+
+        return response()->json($gamesWithBoardDetails);
+    }
+
+
 
     public function singleplayerGames(User $user)
     {
