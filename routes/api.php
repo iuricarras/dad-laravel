@@ -18,7 +18,7 @@ Route::get('/user', function (Request $request) {
 
 Route::get('/games/topSinglePlayer', [GameController::class, 'topSinglePlayerGames']);
 Route::get('/games/topMultiplayer', [GameController::class, 'topMultiplayerGames']);
-Route::get('/games/scoreboard/{user}', [GameController::class, 'personalScoreboard']);
+
 
 
 
@@ -52,6 +52,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::post('/games', [GameController::class, 'store']);
     Route::put('/games/{game}', [GameController::class, 'update']);
+    Route::get('/games/scoreboard/{user}', [GameController::class, 'personalScoreboard']);
     Route::get('/transactions', [TransactionController::class, 'index']);
     Route::post('/transactions', [TransactionController::class, 'store']);
     Route::get('/users', [UserController::class, 'index']);
