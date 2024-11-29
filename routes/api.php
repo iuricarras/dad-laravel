@@ -32,6 +32,10 @@ Route::get('/transactions/{transaction}', [TransactionController::class, 'show']
 Route::get('/statistics', [StatisticsController::class, 'index']);
 Route::get('/statistics/games-per-month', [StatisticsController::class, 'gamesPerMonth']);
 Route::get('/statistics/purchases-per-month', [StatisticsController::class, 'purchasesPerMonth']);
+Route::get('/statistics/games-per-week', [StatisticsController::class, 'gamesPerWeek']);
+Route::get('/statistics/purchases-per-week', [StatisticsController::class, 'purchasesPerWeek']);
+Route::get('/statistics/purchases-by-player', [StatisticsController::class, 'purchasesByPlayer']);
+
 
 
 
