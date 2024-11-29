@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Game;
 use App\Models\Board;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
 
 class StatisticsController extends Controller
 {
@@ -55,5 +56,46 @@ class StatisticsController extends Controller
 
         return response()->json($purchasesPerMonth);
     }
+
+    public function gamesPerWeek()
+    {
+        $gamesPerWeek = DB::table('games')
+            ->selectRaw('YEAR(began_at) as year, WEEKOFYEAR(began_at) as week, COUNT(*) as total_games')
+            ->groupBy('year', 'week')
+            ->orderBy('year', 'asc')
+            ->orderBy('week', 'asc')
+            ->get();
+
+        return response()->json($gamesPerWeek);
+    }
+
+    public function purchasesPerWeek()
+    {
+        $purchasesPerWeek = DB::table('transactions')
+            ->selectRaw('YEAR(transaction_datetime) as year, WEEKOFYEAR(transaction_datetime) as week, COUNT(*) as total_purchases')
+            ->groupBy('year', 'week')
+            ->orderBy('year', 'asc')
+            ->orderBy('week', 'asc')
+            ->get();
+
+        return response()->json($purchasesPerWeek);
+    }
+
+    public function purchasesByPlayer(Request $request)
+{
+    $request->validate([
+        'nickname' => 'required|string',
+    ]);
+
+    $nickname = $request->input('nickname');
+
+    $totalPurchases = DB::table('transactions')
+        ->join('users', 'transactions.user_id', '=', 'users.id')
+        ->where('users.nickname', $nickname)
+        ->sum('transactions.euros');
+
+    return response()->json(['total_purchases' => $totalPurchases]);
+}
+
 
 }

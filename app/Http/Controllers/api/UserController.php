@@ -7,7 +7,6 @@ use App\Http\Requests\StoreUpdateUserRequest;
 use App\Http\Resources\UserResource;
 use App\Models\Game;
 use App\Models\User;
-
 use Illuminate\Http\Request;
 
 class UserController extends Controller
@@ -31,7 +30,10 @@ class UserController extends Controller
 
     public function transactions(User $user)
     {
-        return $user->transactions;
+
+        $users = $user->transactions();
+        
+        return $users -> orderBy('transaction_datetime', 'desc')->get();
     }
     public function games(User $user)
     {
