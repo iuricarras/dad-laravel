@@ -38,6 +38,11 @@ class Game extends Model
         return $this->hasOne(User::class, 'id', 'winner_user_id');
     }
     
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'created_user_id');
+    }
+
     public function board()
     {
         return $this->hasOne(Board::class, 'id', 'board_id');

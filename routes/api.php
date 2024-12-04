@@ -48,8 +48,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/auth/refreshtoken', [AuthController::class, 'refreshToken']);
     Route::get('/users/me', [UserController::class , 'showMe']);
     Route::get('/scoreboard', [GameController::class, 'personalScoreboard']);
+   
     Route::get('/games-history', [GameController::class, 'gameHistory']);
-
     Route::post('/games', [GameController::class, 'store']);
     Route::put('/games/{game}', [GameController::class, 'update']);
     Route::get('/games/scoreboard/{user}', [GameController::class, 'personalScoreboard']);
