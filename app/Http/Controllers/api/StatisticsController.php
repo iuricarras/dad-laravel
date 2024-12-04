@@ -82,20 +82,20 @@ class StatisticsController extends Controller
     }
 
     public function purchasesByPlayer(Request $request)
-{
-    $request->validate([
-        'nickname' => 'required|string',
-    ]);
+    {
+        $request->validate([
+            'nickname' => 'required|string',
+        ]);
 
-    $nickname = $request->input('nickname');
+        $nickname = $request->input('nickname');
 
-    $totalPurchases = DB::table('transactions')
-        ->join('users', 'transactions.user_id', '=', 'users.id')
-        ->where('users.nickname', $nickname)
-        ->sum('transactions.euros');
+        $totalPurchases = DB::table('transactions')
+            ->join('users', 'transactions.user_id', '=', 'users.id')
+            ->where('users.nickname', $nickname)
+            ->sum('transactions.euros');
 
-    return response()->json(['total_purchases' => $totalPurchases]);
-}
+        return response()->json(['total_purchases' => $totalPurchases]);
+    }
 
 
 }

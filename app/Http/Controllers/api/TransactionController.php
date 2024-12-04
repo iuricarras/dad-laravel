@@ -23,9 +23,7 @@ class TransactionController extends Controller
     public function store(StoreTransactionRequest $request)
     {
         $data = $request->validated();
-        $data['transaction_datetime'] = Carbon::parse($data['transaction_datetime'])->format('Y-m-d H:i:s'); // Converte para o formato MySQL
-
-        // Criação da transação
+        $data['transaction_datetime'] = Carbon::parse($data['transaction_datetime'])->format('Y-m-d H:i:s');
         $transaction = Transaction::create($data);
 
         return response()->json([
