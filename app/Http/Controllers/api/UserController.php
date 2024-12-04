@@ -37,13 +37,11 @@ class UserController extends Controller
     }
     public function games(User $user)
     {
-        // Busca todos os jogos do usuário
         $games = $user->games()
-            ->with('board') // Adiciona a relação com a tabela 'boards'
+            ->with('board')
             ->orderBy('began_at', 'desc')
             ->get();
 
-        // Mapeia para adicionar as informações do board dentro de cada jogo
         $gamesWithBoardDetails = $games->map(function ($game) {
             return [
                 'id' => $game->id,
@@ -56,8 +54,8 @@ class UserController extends Controller
                 'total_time' => $game->total_time,
                 'board' => [
                     'board_id' => $game->board_id,
-                    'board_cols' => $game->board->board_cols, // Número de colunas do board
-                    'board_rows' => $game->board->board_rows, // Número de linhas do board
+                    'board_cols' => $game->board->board_cols,
+                    'board_rows' => $game->board->board_rows,
                 ],
             ];
         });

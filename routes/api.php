@@ -18,7 +18,7 @@ Route::get('/user', function (Request $request) {
 
 Route::get('/games/topSinglePlayer', [GameController::class, 'topSinglePlayerGames']);
 Route::get('/games/topMultiplayer', [GameController::class, 'topMultiplayerGames']);
-
+Route::get('/games/topSinglePlayerMinTurns', [GameController::class, 'topSinglePlayerGamesMinTurns']);
 
 
 

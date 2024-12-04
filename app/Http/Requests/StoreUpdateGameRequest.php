@@ -29,7 +29,8 @@ class StoreUpdateGameRequest extends FormRequest
             'ended_at' => 'date|after:began_at|missing_unless:status,E',
             "board_id" => "required|exists:App\Models\Board,id",
             "total_time" => "numeric|nullable",
-            'custom' => 'json'
+            'custom' => 'json',
+            'total_turns_winner' => 'numeric|nullable',
         ];
     }
 }

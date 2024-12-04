@@ -15,7 +15,8 @@ class Game extends Model
         'winner_user_id',
         'board_id',
         'total_time',
-        'custom'
+        'custom',
+        'total_turns_winner'
     ];
 
     public function transactions()
