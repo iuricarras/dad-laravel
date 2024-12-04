@@ -24,7 +24,7 @@ class StoreTransactionRequest extends FormRequest
         return [
             'type' => 'required|in:B,P,I', // Apenas Bônus, Compras ou Interno
             'transaction_datetime' => 'required|date',
-            'user_id' => 'required|exists:users,id',
+            'user_id' => 'exists:users,id',
             'game_id' => 'nullable|exists:games,id|required_if:type,I', // Apenas para tipo 'I'
             'euros' => 'nullable|numeric|min:0|required_if:type,P', // Apenas para tipo 'P'
             'payment_type' => 'nullable|required_if:type,P|in:MBWAY,IBAN,MB,VISA,PAYPAL', // Apenas para tipo 'P'

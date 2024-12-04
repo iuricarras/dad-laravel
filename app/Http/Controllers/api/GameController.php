@@ -18,7 +18,7 @@ class GameController extends Controller
     {
         return Game::get();
     }
-    
+
     public function show(Game $game)
     {
         return $game;
@@ -32,7 +32,7 @@ class GameController extends Controller
         $data['created_user_id'] = $request->user()->id;
         $game = Game::create($data);
         return new GameResource($game);
-    }  
+    }
 
     public function update(StoreUpdateGameRequest $request, Game $game)
     {
@@ -107,14 +107,14 @@ class GameController extends Controller
         return response()->json($topWinners);
     }
 
-    
+
     public function personalScoreboard(Request $request)
 {
     $userId = $request->user()->id;
 
     $singlePlayerData = Game::where('type', 'S')
         ->where('created_user_id', $userId)
-        ->select('board_id', 
+        ->select('board_id',
             DB::raw('MIN(total_time) as best_time'),
             DB::raw('MIN(total_turns_winner) as min_turns'))
         ->groupBy('board_id')
@@ -141,7 +141,7 @@ class GameController extends Controller
         ],
     ]);
 }
-    
+
 
 public function gameHistory(Request $request)
 {
