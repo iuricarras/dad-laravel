@@ -66,33 +66,7 @@ class GameController extends Controller
     public function topSinglePlayerGames(Request $request)
     {
         $boardId = $request->input('board_id');
-
-        $query = Game::where('type', 'S')
-            ->whereNotNull('total_time')
-            ->whereHas('user', function ($query) {
-                $query->whereNull('deleted_at');
-            });
-
-        if ($boardId) {
-            $query->where('board_id', $boardId);
-        }
-
-        $topGames = $query
-            ->orderBy('total_time', 'asc')
-            ->with(['user:id,nickname', 'board:id,board_cols,board_rows'])
-            ->take(5)
-            ->get();
-
-        $minTurns = $query->min('total_turns_winner');
-
-        return response()->json([
-            'top_games' => $topGames,
-            'min_turns' => $minTurns,
-        ]);
-    }
-
-    public function topSinglePlayerGamesMinTurns(Request $request){
-        $boardId = $request->input('board_id');
+        $sortBy = $request->input('sort_by', 'total_time');
 
         $query = Game::where('type', 'S')
             ->whereNotNull('total_turns_winner')
@@ -105,7 +79,7 @@ class GameController extends Controller
         }
 
         $topGames = $query
-            ->orderBy('total_turns_winner', 'asc')
+            ->orderBy($sortBy, 'asc')
             ->with(['user:id,nickname', 'board:id,board_cols,board_rows'])
             ->take(5)
             ->get();
@@ -117,7 +91,6 @@ class GameController extends Controller
             'min_turns' => $minTurns,
         ]);
     }
-
 
 
     public function topMultiplayerGames(Request $request)
