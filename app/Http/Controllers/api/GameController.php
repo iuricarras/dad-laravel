@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreTransactionRequest;
 use App\Http\Requests\StoreUpdateGameRequest;
 use App\Http\Resources\GameResource;
 use App\Models\Board;
 use App\Models\Game;
+use App\Models\Transaction;
 use Carbon\Carbon;
 use DateTime;
 use Illuminate\Http\Request;
@@ -30,7 +32,23 @@ class GameController extends Controller
         $time =  new Carbon($request->input('began_at'));
         $data['began_at'] = $time->toDateTimeString();
         $data['created_user_id'] = $request->user()->id;
+
         $game = Game::create($data);
+
+        $transactionData = new Transaction();
+
+        $transactionData->fill([
+            'type' => 'I',
+            'transaction_datetime' => $data['began_at'],
+            'user_id' => $data['created_user_id'],
+            'game_id' => $game->id,
+            'brain_coins' => -1,
+        ]);
+
+       $transactionData->save();
+
+        $request->user()->decrement('brain_coins_balance', 1);
+
         return new GameResource($game);
     }  
 
