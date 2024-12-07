@@ -110,7 +110,7 @@ class UserController extends Controller
 
         $validatedData = $request->validated();
 
-        // Se o campo "photo" for enviado na requisição
+        // Verifica se o campo "photo" existe
     if ($request->has('photo')) {
         // Remove o prefixo Base64 e decodifica a imagem
         $photoContent = base64_decode(preg_replace('/^data:image\/[a-zA-Z]+;base64,/', '', $validatedData['photo']));
@@ -119,20 +119,20 @@ class UserController extends Controller
             return response()->json(['error' => 'Erro ao decodificar a imagem.'], 422);
         }
 
-        // Gera um nome único para a imagem com extensão .jpg
+        // Gera um nome para a imagem
         $photoFilename = $user->id . '_' . uniqid() . '.jpg';
 
-        // Salva a imagem no disco 'public' (em storage/app/public/photos)
+        // Guarda a imagem (como esta no config/filesystems.php) (storage/app/public/photos)
         Storage::disk('public')->put('photos/' . $photoFilename, $photoContent);
 
-        // Atualiza o nome do arquivo no campo correto no banco de dados
+        // Atualiza o campo da base de dados
         $validatedData['photo_filename'] = $photoFilename;
 
-        // Remove a entrada "photo" do array validado para evitar erro na atualização
+        // Limpa o campo da foto para evitar um erro no update
         unset($validatedData['photo']);
     }
 
-        // Atualiza o utilizador
+        // Atualiza os dados do utilizador
         $user->update($validatedData);
 
         return new UserResource($user);
