@@ -3,7 +3,6 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use App\Rules\Base64Image;
 
 class StoreUpdateUserFotoRequest extends FormRequest
 {
@@ -23,7 +22,7 @@ class StoreUpdateUserFotoRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'sometimes|string|min:5',
+            'name' => 'sometimes|string|min:3',
             'email' => 'sometimes|email',
             'nickname' => 'sometimes|string|min:3',
             'password' => 'sometimes|string|min:3',
