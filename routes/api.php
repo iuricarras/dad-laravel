@@ -10,6 +10,10 @@ use App\Http\Controllers\api\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+
+use App\Http\Controllers\api\UserUpdateController;
+
+
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
@@ -47,7 +51,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/auth/refreshtoken', [AuthController::class, 'refreshToken']);
     Route::get('/users/me', [UserController::class , 'showMe']);
     Route::get('/scoreboard', [GameController::class, 'personalScoreboard']);
-   
+
     Route::get('/games-history', [GameController::class, 'gameHistory']);
     Route::post('/games', [GameController::class, 'store']);
     Route::put('/games/{game}', [GameController::class, 'update']);
@@ -60,7 +64,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/users/{user}/games', [UserController::class, 'games']);
     Route::get('/users/{user}/singleplayerGames', [UserController::class, 'games']);
     Route::get('/users/{user}/multiplayerGames', [UserController::class, 'multiplayerGames']);
+
+    //Route::match(['put', 'patch'], '/users/{user}', [UserController::class, 'update']);
     Route::put('/users/{user}', [UserController::class, 'update']);
+    Route::patch('/users/{user}', [UserUpdateController::class, 'update']);
+
+
     Route::delete('/users/{user}', [UserController::class, 'destroy']);
 
 
