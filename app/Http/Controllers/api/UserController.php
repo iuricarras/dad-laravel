@@ -4,10 +4,12 @@ namespace App\Http\Controllers\api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreUpdateUserRequest;
+use App\Http\Requests\StoreUpdateUserFotoRequest;
 use App\Http\Resources\UserResource;
 use App\Models\Game;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class UserController extends Controller
 {
@@ -32,7 +34,7 @@ class UserController extends Controller
     {
 
         $users = $user->transactions();
-        
+
         return $users -> orderBy('transaction_datetime', 'desc')->get();
     }
     public function games(User $user)
@@ -101,4 +103,39 @@ class UserController extends Controller
 
         return response()->json([], 204);
     }
+
+
+    public function update_Foto(StoreUpdateUserFotoRequest $request, User $user)
+    {
+
+        $validatedData = $request->validated();
+
+        // Se o campo "photo" for enviado na requisição
+    if ($request->has('photo')) {
+        // Remove o prefixo Base64 e decodifica a imagem
+        $photoContent = base64_decode(preg_replace('/^data:image\/[a-zA-Z]+;base64,/', '', $validatedData['photo']));
+
+        if ($photoContent === false) {
+            return response()->json(['error' => 'Erro ao decodificar a imagem.'], 422);
+        }
+
+        // Gera um nome único para a imagem com extensão .jpg
+        $photoFilename = $user->id . '_' . uniqid() . '.jpg';
+
+        // Salva a imagem no disco 'public' (em storage/app/public/photos)
+        Storage::disk('public')->put('photos/' . $photoFilename, $photoContent);
+
+        // Atualiza o nome do arquivo no campo correto no banco de dados
+        $validatedData['photo_filename'] = $photoFilename;
+
+        // Remove a entrada "photo" do array validado para evitar erro na atualização
+        unset($validatedData['photo']);
+    }
+
+        // Atualiza o utilizador
+        $user->update($validatedData);
+
+        return new UserResource($user);
+    }
+
 }

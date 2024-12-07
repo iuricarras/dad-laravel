@@ -5,7 +5,7 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use App\Rules\Base64Image;
 
-class StoreUpdateUserUpdateRequest extends FormRequest
+class StoreUpdateUserFotoRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -27,7 +27,6 @@ class StoreUpdateUserUpdateRequest extends FormRequest
             'email' => 'sometimes|email',
             'nickname' => 'sometimes|string|min:3',
             'password' => 'sometimes|string|min:3',
-            //'photo' => 'sometimes|nullable|base64image',
             'photo' => 'sometimes|nullable|string',
         ];
     }

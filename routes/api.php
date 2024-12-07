@@ -67,7 +67,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     //Route::match(['put', 'patch'], '/users/{user}', [UserController::class, 'update']);
     Route::put('/users/{user}', [UserController::class, 'update']);
-    Route::patch('/users/{user}', [UserUpdateController::class, 'update']);
+    Route::patch('/users/{user}', [UserController::class, 'update_Foto']);
 
 
     Route::delete('/users/{user}', [UserController::class, 'destroy']);
