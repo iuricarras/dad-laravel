@@ -120,7 +120,9 @@ class UserController extends Controller
         }
 
         // Gera um nome para a imagem
-        $photoFilename = $user->id . '_' . uniqid() . '.jpg';
+        //$photoFilename = $user->id . '_' . uniqid() . '.jpg';
+        // Vai buscar o nome da imagem da base de dados
+        $photoFilename = $user->photo_filename;
 
         // Guarda a imagem (como esta no config/filesystems.php) (storage/app/public/photos)
         Storage::disk('public')->put('photos/' . $photoFilename, $photoContent);
@@ -131,6 +133,7 @@ class UserController extends Controller
         // Limpa o campo da foto para evitar um erro no update
         unset($validatedData['photo']);
     }
+
 
         // Atualiza os dados do utilizador
         $user->update($validatedData);
