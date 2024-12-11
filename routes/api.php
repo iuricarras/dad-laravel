@@ -10,8 +10,7 @@ use App\Http\Controllers\api\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-
-use App\Http\Controllers\api\UserUpdateController;
+use App\Http\Controllers\api\UserCreateController;
 
 
 Route::get('/user', function (Request $request) {
@@ -77,6 +76,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/multiplayerGamesPlayed', [MultiplayerGamePlayedController::class, 'store']);
 });
 Route::post('/auth/login', [AuthController::class, 'login']);
+Route::post('/users', [UserCreateController::class, 'create']);
 
 
 
