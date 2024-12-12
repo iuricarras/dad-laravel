@@ -8,6 +8,7 @@ use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Hash;
 
 class UserCreateController extends Controller
 {
@@ -28,67 +29,31 @@ class UserCreateController extends Controller
         return new UserResource($request->user());
     }
 
-    public function create2(Request $request)
-    {
-        return new UserResource($request->user());
-    }
 
     public function create(StoreCreateUserRequest $request, User $user)
     {
 
         $validatedData = $request->validated();
-        //dd($request->all());
 
-        // Verifica se o campo "photo" existe
-    if ($request->has('photo')) {
-        // Remove o prefixo Base64 e decodifica a imagem
-        $photoContent = base64_decode(preg_replace('/^data:image\/[a-zA-Z]+;base64,/', '', $validatedData['photo']));
+        // calcula o próximo ID
+        $nextId = User::max('id') + 1;
 
-        if ($photoContent === false) {
-            return response()->json(['error' => 'Erro ao decodificar a imagem.'], 422);
+        // caso nos dados exista uma foto
+        if (isset($validatedData['photo'])) {
+            $photoContent = base64_decode(preg_replace('/^data:image\/[a-zA-Z]+;base64,/', '', $validatedData['photo']));
+            $photoFilename = $nextId . '_' . uniqid() . '.jpg';
+
+			Storage::disk('public')->put('photos/' . $photoFilename, $photoContent);
+
+            // altera o campo da foto com o nome gerado
+            $validatedData['photo_filename'] = $photoFilename;
         }
 
-        $request->input('name');
+        // aplica uma Hash na password antes de criar o user
+        $validatedData['password'] = Hash::make($validatedData['password']);
 
-
-        // Gera um nome para a imagem
-        //$photoFilename = $user->id . '_' . uniqid() . '.jpg';
-        // Vai buscar o nome da imagem da base de dados
-        $photoFilename = $user->photo_filename;
-
-
-        /*
-        na vista dos pedidos!!!!
-        criar:
-        se has foto
-        get last user_id+1 + (string gerada) + .jpg
-
-
-
-
-        atualizar:
-        if (verificar se já existe foto)
-        escrever por cima
-    else:
-        criar foto
-
-        */
-
-
-
-        // Guarda a imagem (como esta no config/filesystems.php) (storage/app/public/photos)
-        Storage::disk('public')->put('photos/' . $photoFilename, $photoContent);
-
-        // Atualiza o campo da base de dados
-        $validatedData['photo_filename'] = $photoFilename;
-
-        // Limpa o campo da foto para evitar um erro no update
-        unset($validatedData['photo']);
-    }
-
-
-        // Atualiza os dados do utilizador
-        $user->create($validatedData);
+        // cria o user
+        $user = User::create($validatedData);
 
         return new UserResource($user);
     }
