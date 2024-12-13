@@ -33,6 +33,7 @@ class UserCreateController extends Controller
     public function create(StoreCreateUserRequest $request, User $user)
     {
 
+        // valida os dados
         $validatedData = $request->validated();
 
         // calcula o próximo ID

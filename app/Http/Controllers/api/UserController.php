@@ -10,6 +10,7 @@ use App\Models\Game;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
@@ -108,34 +109,46 @@ class UserController extends Controller
     public function update_Foto(StoreUpdateUserFotoRequest $request, User $user)
     {
 
+        // valida os dados
         $validatedData = $request->validated();
 
-        // Verifica se o campo "photo" existe
-    if ($request->has('photo')) {
-        // Remove o prefixo Base64 e decodifica a imagem
-        $photoContent = base64_decode(preg_replace('/^data:image\/[a-zA-Z]+;base64,/', '', $validatedData['photo']));
 
-        if ($photoContent === false) {
-            return response()->json(['error' => 'Erro ao decodificar a imagem.'], 422);
+        // verifica se a password existe no pedido,
+        // antes de refazer e alterar a HASH da password
+        if ($request->has('password') == $user->password) {
+            $validatedData['password'] = Hash::make($validatedData['password']);
         }
 
-        // Gera um nome para a imagem
-        //$photoFilename = $user->id . '_' . uniqid() . '.jpg';
-        // Vai buscar o nome da imagem da base de dados
-        $photoFilename = $user->photo_filename;
+        // verifica se a foto existe
+        if ($request->has('photo')) {
+            // remove o prefixo BASE64 e decodifica a imagem
+            $photoContent = base64_decode(preg_replace('/^data:image\/[a-zA-Z]+;base64,/', '', $validatedData['photo']));
 
-        // Guarda a imagem (como esta no config/filesystems.php) (storage/app/public/photos)
-        Storage::disk('public')->put('photos/' . $photoFilename, $photoContent);
+            if ($photoContent === false) {
+                return response()->json(['error' => 'Erro ao decodificar a imagem.'], 422);
+            }
 
-        // Atualiza o campo da base de dados
-        $validatedData['photo_filename'] = $photoFilename;
+            // verifica se o user já tem uma foto armazenada
+            if (!empty($user->photo_filename)) {
+                // remove a foto antiga
+                Storage::disk('public')->delete('photos/' . $user->photo_filename);
+            }
 
-        // Limpa o campo da foto para evitar um erro no update
-        unset($validatedData['photo']);
-    }
+            // gera um nome para a foto
+            $photoFilename = $user->id . '_' . uniqid() . '.jpg';
+
+            // guarda a imagem (como esta no config/filesystems.php) (storage/app/public/photos)
+            Storage::disk('public')->put('photos/' . $photoFilename, $photoContent);
+
+            // atualiza o nome da foto na base de dados
+            $validatedData['photo_filename'] = $photoFilename;
+
+            // remove o campo da foto nos dados a atualizar
+            unset($validatedData['photo']);
+        }
 
 
-        // Atualiza os dados do utilizador
+        // atualiza o resto dos dados do user
         $user->update($validatedData);
 
         return new UserResource($user);
