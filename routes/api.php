@@ -10,7 +10,6 @@ use App\Http\Controllers\api\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-use App\Http\Controllers\api\UserCreateController;
 
 
 Route::get('/user', function (Request $request) {
@@ -66,7 +65,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     //Route::match(['put', 'patch'], '/users/{user}', [UserController::class, 'update']);
     Route::put('/users/{user}', [UserController::class, 'update']);
-    Route::patch('/users/{user}', [UserController::class, 'update_Foto']);
+    Route::patch('/users/{user}', [UserController::class, 'updateFoto']);
 
 
     Route::delete('/users/{user}', [UserController::class, 'destroy']);
@@ -76,7 +75,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/multiplayerGamesPlayed', [MultiplayerGamePlayedController::class, 'store']);
 });
 Route::post('/auth/login', [AuthController::class, 'login']);
-Route::post('/users', [UserCreateController::class, 'create']);
+Route::post('/users', [UserController::class, 'createUser']);
 
 
 
