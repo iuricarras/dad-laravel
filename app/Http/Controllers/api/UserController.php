@@ -5,12 +5,14 @@ namespace App\Http\Controllers\api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreUpdateUserRequest;
 use App\Http\Requests\StoreUpdateUserFotoRequest;
+use App\Http\Requests\StoreCreateUserRequest;
 use App\Http\Resources\UserResource;
 use App\Models\Game;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Hash;
+
 
 class UserController extends Controller
 {
@@ -107,8 +109,37 @@ class UserController extends Controller
         return response()->json([], 204);
     }
 
+    public function createUser(StoreCreateUserRequest $request, User $user)
+    {
 
-    public function update_Foto(StoreUpdateUserFotoRequest $request, User $user)
+        // valida os dados
+        $validatedData = $request->validated();
+
+        // calcula o próximo ID
+        $nextId = User::max('id') + 1;
+
+        // caso nos dados exista uma foto
+        if (isset($validatedData['photo'])) {
+            $photoContent = base64_decode(preg_replace('/^data:image\/[a-zA-Z]+;base64,/', '', $validatedData['photo']));
+            $photoFilename = $nextId . '_' . uniqid() . '.jpg';
+
+			Storage::disk('public')->put('photos/' . $photoFilename, $photoContent);
+
+            // altera o campo da foto com o nome gerado
+            $validatedData['photo_filename'] = $photoFilename;
+        }
+
+        // aplica uma Hash na password antes de criar o user
+        $validatedData['password'] = Hash::make($validatedData['password']);
+
+        // cria o user
+        $user = User::create($validatedData);
+
+        return new UserResource($user);
+    }
+
+
+    public function updateFoto(StoreUpdateUserFotoRequest $request, User $user)
     {
 
         // valida os dados
