@@ -48,7 +48,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/users/me', [UserController::class , 'showMe']);
 
     Route::get('/scoreboard', [GameController::class, 'personalScoreboard']);
-   
+
     Route::get('/games-history', [GameController::class, 'gameHistory']);
     Route::post('/games', [GameController::class, 'store']);
     Route::put('/games/{game}', [GameController::class, 'update']);
@@ -58,7 +58,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/transactions', [TransactionController::class, 'getTransactions']);
     Route::post('/transactions', [TransactionController::class, 'store']);
     Route::get('/users/{user}/transactions', [TransactionController::class, 'show']);
-    
+
     Route::get('/users', [UserController::class, 'index']);
     Route::get('/users/{user}', [UserController::class, 'show']);
     Route::get('/users/{user}/games', [UserController::class, 'games']);
@@ -71,6 +71,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
 
     Route::delete('/users/{user}', [UserController::class, 'destroy']);
+
+    Route::post('/users/admin', [UserController::class, 'createAdmin']);
 
     Route::post('/multiplayerGamesPlayed', [MultiplayerGamePlayedController::class, 'store']);
 });

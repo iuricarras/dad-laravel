@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Hash;
 
 
+
 class UserController extends Controller
 {
 
@@ -69,7 +70,7 @@ class UserController extends Controller
 
         return $users -> orderBy('transaction_datetime', 'desc')->get();
     }
-    
+
     public function games(Request $request, User $user)
 {
     $page = $request->query('page', 1);
@@ -190,6 +191,43 @@ class UserController extends Controller
 
         return new UserResource($user);
     }
+
+
+
+    public function createAdmin(StoreCreateUserRequest $request, User $user)
+    {
+
+        // valida os dados
+        $validatedData = $request->validated();
+
+        // calcula o próximo ID
+        $nextId = User::max('id') + 1;
+
+        // caso nos dados exista uma foto
+        if (isset($validatedData['photo'])) {
+            $photoContent = base64_decode(preg_replace('/^data:image\/[a-zA-Z]+;base64,/', '', $validatedData['photo']));
+            $photoFilename = $nextId . '_' . uniqid() . '.jpg';
+
+			Storage::disk('public')->put('photos/' . $photoFilename, $photoContent);
+
+            // altera o campo da foto com o nome gerado
+            $validatedData['photo_filename'] = $photoFilename;
+        }
+
+        // aplica uma Hash na password antes de criar o user
+        $validatedData['password'] = Hash::make($validatedData['password']);
+
+        // acrescenta o tipo de user nos dados validados
+        $validatedData['type'] = 'A';
+
+
+        // cria o user
+        $user = User::create($validatedData);
+
+        return new UserResource($user);
+    }
+
+
 
 
     public function updateFoto(StoreUpdateUserFotoRequest $request, User $user)
