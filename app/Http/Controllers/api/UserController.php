@@ -92,6 +92,27 @@ class UserController extends Controller
         return new UserResource($user);
     }
 
+
+    // função para verificar a pass e despois apaga o user
+    public function checkBeforeDelete(Request $request, User $user)
+    {
+        // valida os dados(para não fazer outro StoreRequest)
+        $request->validate([
+            'password' => 'required|string',
+        ]);
+
+        // verificar se password é válida
+        if (!Hash::check($request->password, $user->password)) {
+            return response()->json([
+                'error' => 'Senha inválida'], 403);
+        }
+
+        // se a password for válida, chamar a função abaixo (destroy)
+        return $this->destroy($user);
+    }
+
+
+
     public function destroy(User $user)
     {
         if($user->transactions()->count() > 0 || $user->games()->count() > 0)
