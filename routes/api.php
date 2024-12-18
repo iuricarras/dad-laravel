@@ -11,8 +11,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 
-use App\Http\Controllers\api\UserUpdateController;
-
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -68,12 +66,16 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/users/{user}/multiplayerGames', [UserController::class, 'multiplayerGames']);
     //Route::match(['put', 'patch'], '/users/{user}', [UserController::class, 'update']);
     Route::put('/users/{user}', [UserController::class, 'update']);
-    Route::patch('/users/{user}', [UserController::class, 'update_Foto']);
+    Route::patch('/users/{user}', [UserController::class, 'updateFoto']);
+    Route::post('/users/{user}/delete', [UserController::class, 'checkBeforeDelete']);
+
+
     Route::delete('/users/{user}', [UserController::class, 'destroy']);
 
     Route::post('/multiplayerGamesPlayed', [MultiplayerGamePlayedController::class, 'store']);
 });
 Route::post('/auth/login', [AuthController::class, 'login']);
+Route::post('/users', [UserController::class, 'createUser']);
 
 
 
