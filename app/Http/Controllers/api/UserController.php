@@ -117,6 +117,8 @@ class UserController extends Controller
     {
         if($user->transactions()->count() > 0 || $user->games()->count() > 0)
         {
+            $user->brain_coins_balance = 0;
+            $user->save();
             $user->delete();
             return response()->json([
                 'message' => 'User has transactions or games, soft deleted.',
