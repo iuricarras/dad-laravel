@@ -162,21 +162,45 @@ class GameController extends Controller
 
 
     public function gameHistory(Request $request)
-    {
-        $userId = $request->user()->id;
+{
+    $userId = $request->user()->id;
 
-        $games = Game::where(function ($query) use ($userId) {
-            $query->where('created_user_id', $userId)
-                ->orWhereHas('multiplayerGamesPlayed', function ($q) use ($userId) {
-                    $q->where('user_id', $userId);
-                });
-        })
+    $page = $request->query('page', 1);
+    $itemsPerPage = $request->query('itemsPerPage', 10);
+    $offset = ($page - 1) * $itemsPerPage;
+    $type = $request->query('type', null);
+    $board = $request->query('board', null);
+
+    $gamesQuery = Game::where(function ($query) use ($userId) {
+        $query->where('created_user_id', $userId)
+              ->orWhereHas('multiplayerGamesPlayed', function ($q) use ($userId) {
+                  $q->where('user_id', $userId);
+              });
+    });
+
+    if ($type) {
+        $gamesQuery->where('type', $type);
+    }
+
+    if ($board) {
+        $gamesQuery->where('board_id', $board);
+    }
+
+    $games = $gamesQuery
         ->with(['board:id,board_cols,board_rows', 'creator:id,nickname', 'winner:id,nickname'])
         ->select('id', 'type', 'status', 'began_at', 'ended_at', 'total_time', 'total_turns_winner', 'board_id', 'created_user_id', 'winner_user_id', 'created_at')
         ->orderBy('created_at', 'desc')
+        ->skip($offset)
+        ->take($itemsPerPage)
         ->get();
 
-        return response()->json($games);
-    }
+    $totalGames = $gamesQuery->count(); 
 
+    return response()->json([
+        'games' => $games,
+        'total' => $totalGames,
+        'page' => $page,
+        'itemsPerPage' => $itemsPerPage,
+    ]);
+}
 }

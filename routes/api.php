@@ -30,7 +30,6 @@ Route::get('/boards/all', [BoardController::class, 'index']);
 
 Route::post('/transactions', [TransactionController::class, 'store']);
 
-Route::get('/transactions/{transaction}', [TransactionController::class, 'show']);
 
 Route::get('/statistics', [StatisticsController::class, 'index']);
 Route::get('/statistics/games-per-month', [StatisticsController::class, 'gamesPerMonth']);
@@ -41,38 +40,36 @@ Route::get('/statistics/purchases-by-player', [StatisticsController::class, 'pur
 
 
 
-
 Route::get('/games', [GameController::class, 'index']);
-    Route::get('/games/{game}', [GameController::class, 'show']);
+Route::get('/games/{game}', [GameController::class, 'show']);
 
 
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/auth/logout', [AuthController::class, 'logout']);
     Route::post('/auth/refreshtoken', [AuthController::class, 'refreshToken']);
     Route::get('/users/me', [UserController::class , 'showMe']);
-    Route::get('/scoreboard', [GameController::class, 'personalScoreboard']);
 
+    Route::get('/scoreboard', [GameController::class, 'personalScoreboard']);
+   
     Route::get('/games-history', [GameController::class, 'gameHistory']);
     Route::post('/games', [GameController::class, 'store']);
     Route::put('/games/{game}', [GameController::class, 'update']);
     Route::get('/games/scoreboard/{user}', [GameController::class, 'personalScoreboard']);
-    Route::get('/transactions', [TransactionController::class, 'index']);
+
+    //Route::get('/transactions', [TransactionController::class, 'index']);
+    Route::get('/transactions', [TransactionController::class, 'getTransactions']);
     Route::post('/transactions', [TransactionController::class, 'store']);
+    Route::get('/users/{user}/transactions', [TransactionController::class, 'show']);
+    
     Route::get('/users', [UserController::class, 'index']);
     Route::get('/users/{user}', [UserController::class, 'show']);
-    Route::get('/users/{user}/transactions', [UserController::class, 'transactions']);
     Route::get('/users/{user}/games', [UserController::class, 'games']);
     Route::get('/users/{user}/singleplayerGames', [UserController::class, 'games']);
     Route::get('/users/{user}/multiplayerGames', [UserController::class, 'multiplayerGames']);
-
     //Route::match(['put', 'patch'], '/users/{user}', [UserController::class, 'update']);
     Route::put('/users/{user}', [UserController::class, 'update']);
     Route::patch('/users/{user}', [UserController::class, 'update_Foto']);
-
-
     Route::delete('/users/{user}', [UserController::class, 'destroy']);
-
-
 
     Route::post('/multiplayerGamesPlayed', [MultiplayerGamePlayedController::class, 'store']);
 });

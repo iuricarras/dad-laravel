@@ -15,10 +15,39 @@ class UserController extends Controller
 {
 
 
-    public function index()
-    {
-        return User::get();
+    public function index(Request $request)
+{
+    $page = max(1, (int) $request->query('page', 1));
+    $itemsPerPage = max(1, (int) $request->query('itemsPerPage', 8));
+    $type = $request->query('type', 'All');
+    $blocked = $request->query('blocked', 'All');
+
+    $query = User::query();
+
+    if ($type != 'All') {
+        $query->where('type', $type);
     }
+
+    if ($blocked != 'All') {
+        $query->where('blocked', $blocked === 'Yes');
+    }
+
+    $totalUsers = $query->count();
+    $users = $query->skip(($page - 1) * $itemsPerPage)
+                   ->take($itemsPerPage)
+                   ->get();
+
+    return response()->json([
+        'users' => $users,
+        'total' => $totalUsers,
+        'page' => $page,
+        'itemsPerPage' => $itemsPerPage,
+        'type' => $type,
+        'blocked' => $blocked,
+    ]);
+}
+
+
 
     public function show(User $user)
     {
@@ -37,34 +66,37 @@ class UserController extends Controller
 
         return $users -> orderBy('transaction_datetime', 'desc')->get();
     }
-    public function games(User $user)
-    {
-        $games = $user->games()
-            ->with('board')
-            ->orderBy('began_at', 'desc')
-            ->get();
+    
+    public function games(Request $request, User $user)
+{
+    $page = $request->query('page', 1);
+    $itemsPerPage = $request->query('itemsPerPage', 10);
+    $type = $request->query('type', null);
+    $status = $request->query('status', null);
 
-        $gamesWithBoardDetails = $games->map(function ($game) {
-            return [
-                'id' => $game->id,
-                'type' => $game->type,
-                'created_user_id' => $game->created_user_id,
-                'winner_user_id' => $game->winner_user_id,
-                'status' => $game->status,
-                'began_at' => $game->began_at,
-                'ended_at' => $game->ended_at,
-                'total_time' => $game->total_time,
-                'board' => [
-                    'board_id' => $game->board_id,
-                    'board_cols' => $game->board->board_cols,
-                    'board_rows' => $game->board->board_rows,
-                ],
-            ];
-        });
+    $offset = ($page - 1) * $itemsPerPage;
 
-        return response()->json($gamesWithBoardDetails);
+    $query = $user->games()->with('board')->orderBy('began_at', 'desc');
+
+    // Aplica os filtros se fornecidos
+    if ($type) {
+        $query->where('type', $type);
+    }
+    if ($status) {
+        $query->where('status', $status);
     }
 
+    $totalGames = $query->count();
+
+    $games = $query->skip($offset)->take($itemsPerPage)->get();
+
+    return response()->json([
+        'games' => $games,
+        'total' => $totalGames,
+        'page' => $page,
+        'itemsPerPage' => $itemsPerPage,
+    ]);
+}
 
 
     public function singleplayerGames(User $user)
