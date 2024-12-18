@@ -12,7 +12,8 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Hash;
-
+use App\Models\Transaction;
+use Carbon\Carbon;
 
 class UserController extends Controller
 {
@@ -69,7 +70,7 @@ class UserController extends Controller
 
         return $users -> orderBy('transaction_datetime', 'desc')->get();
     }
-    
+
     public function games(Request $request, User $user)
 {
     $page = $request->query('page', 1);
@@ -163,33 +164,30 @@ class UserController extends Controller
     }
 
     public function createUser(StoreCreateUserRequest $request, User $user)
-    {
+{
+    $validatedData = $request->validated();
+    $nextId = User::max('id') + 1;
+    if (isset($validatedData['photo'])) {
+        $photoContent = base64_decode(preg_replace('/^data:image\/[a-zA-Z]+;base64,/', '', $validatedData['photo']));
+        $photoFilename = $nextId . '_' . uniqid() . '.jpg';
 
-        // valida os dados
-        $validatedData = $request->validated();
-
-        // calcula o próximo ID
-        $nextId = User::max('id') + 1;
-
-        // caso nos dados exista uma foto
-        if (isset($validatedData['photo'])) {
-            $photoContent = base64_decode(preg_replace('/^data:image\/[a-zA-Z]+;base64,/', '', $validatedData['photo']));
-            $photoFilename = $nextId . '_' . uniqid() . '.jpg';
-
-			Storage::disk('public')->put('photos/' . $photoFilename, $photoContent);
-
-            // altera o campo da foto com o nome gerado
-            $validatedData['photo_filename'] = $photoFilename;
-        }
-
-        // aplica uma Hash na password antes de criar o user
-        $validatedData['password'] = Hash::make($validatedData['password']);
-
-        // cria o user
-        $user = User::create($validatedData);
-
-        return new UserResource($user);
+        Storage::disk('public')->put('photos/' . $photoFilename, $photoContent);
+        $validatedData['photo_filename'] = $photoFilename;
     }
+    $validatedData['password'] = Hash::make($validatedData['password']);
+    $user = User::create($validatedData);
+    $transactionData = new Transaction();
+    $transactionData->fill([
+        'type' => 'B',
+        'transaction_datetime' => Carbon::now()->format('Y-m-d H:i:s'),
+        'user_id' => $user->id,
+        'brain_coins' => 10,
+    ]);
+    $transactionData->save();
+    $user->increment('brain_coins_balance', 10);
+
+    return new UserResource($user);
+}
 
 
     public function updateFoto(StoreUpdateUserFotoRequest $request, User $user)
