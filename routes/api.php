@@ -76,6 +76,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::delete('/users/{user}', [UserController::class, 'destroy'])->can('delete', 'user');
 
     Route::post('/multiplayerGamesPlayed', [MultiplayerGamePlayedController::class, 'store'])->can('player', User::class);
+
+    Route::post('/users/admin', [UserController::class, 'createAdmin']);
+
+
 });
 Route::post('/auth/login', [AuthController::class, 'login']);
 Route::post('/users', [UserController::class, 'createUser']);
