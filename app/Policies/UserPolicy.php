@@ -27,9 +27,9 @@ class UserPolicy
     public function player(User $user): bool{
         return $user->type != 'A';
     }
-    public function update(User $user, User $targetUser): bool
+    public function update(User $user, User $user2): bool
     {
-        return $user->id === $targetUser->id || $user->type == 'A';
+        return true;
     }
     public function delete(User $user, User $targetUser): bool
     {

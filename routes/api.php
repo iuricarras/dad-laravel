@@ -71,15 +71,13 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     //Route::match(['put', 'patch'], '/users/{user}', [UserController::class, 'update']);
     Route::put('/users/{user}', [UserController::class, 'update'])->can('update', 'user');
-    Route::patch('/users/{user}', [UserController::class, 'updateFoto'])->can('update', 'user');
+    Route::patch('/users/{user}', [UserController::class, 'updateFoto'])->can('view', 'user');
     Route::post('/users/{user}/delete', [UserController::class, 'checkBeforeDelete'])->can('delete', 'user');
     Route::delete('/users/{user}', [UserController::class, 'destroy'])->can('delete', 'user');
 
     Route::post('/multiplayerGamesPlayed', [MultiplayerGamePlayedController::class, 'store'])->can('player', User::class);
 
-    Route::post('/users/admin', [UserController::class, 'createAdmin']);
-
-
+    Route::post('/users/admin', [UserController::class, 'createAdmin'])->can('viewAny', User::class);
 });
 Route::post('/auth/login', [AuthController::class, 'login']);
 Route::post('/users', [UserController::class, 'createUser']);
