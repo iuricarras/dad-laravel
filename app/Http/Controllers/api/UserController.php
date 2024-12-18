@@ -165,30 +165,77 @@ class UserController extends Controller
     }
 
     public function createUser(StoreCreateUserRequest $request, User $user)
-{
-    $validatedData = $request->validated();
-    $nextId = User::max('id') + 1;
-    if (isset($validatedData['photo'])) {
-        $photoContent = base64_decode(preg_replace('/^data:image\/[a-zA-Z]+;base64,/', '', $validatedData['photo']));
-        $photoFilename = $nextId . '_' . uniqid() . '.jpg';
+    {
 
-        Storage::disk('public')->put('photos/' . $photoFilename, $photoContent);
-        $validatedData['photo_filename'] = $photoFilename;
+        // valida os dados
+        $validatedData = $request->validated();
+
+        // calcula o próximo ID
+        $nextId = User::max('id') + 1;
+
+
+        // caso nos dados exista uma foto
+        if (isset($validatedData['photo'])) {
+            $photoContent = base64_decode(preg_replace('/^data:image\/[a-zA-Z]+;base64,/', '', $validatedData['photo']));
+
+            if ($photoContent === false) {
+                return response()->json(['error' => 'Erro ao decodificar a imagem.'], 422);
+            }
+
+            // verifica o tipo MIME da imagem usando getimagesizefromstring
+            $imageDetails = getimagesizefromstring($photoContent);
+
+            if ($imageDetails === false) {
+                return response()->json(['error' => 'Não foi possível identificar o formato da imagem.'], 422);
+            }
+
+            $mimeType = $imageDetails['mime'];
+
+            // define a extensão com base no tipo MIME
+            $extension = '';
+            switch ($mimeType) {
+                case 'image/jpeg':
+                    $extension = '.jpg';
+                    break;
+                case 'image/png':
+                    $extension = '.png';
+                    break;
+                case 'image/gif':
+                    $extension = '.gif';
+                    break;
+                default:
+                return response()->json(['error' => 'Formato de imagem não suportado.'], 422);
+            }
+
+            // gera um nome para a foto
+            $photoFilename = $nextId . '_' . uniqid() . $extension;
+
+            // guarda a imagem (como esta no config/filesystems.php) (storage/app/public/photos)
+			Storage::disk('public')->put('photos/' . $photoFilename, $photoContent);
+
+            // altera o campo da foto com o nome gerado
+            $validatedData['photo_filename'] = $photoFilename;
+        }
+
+        // aplica uma Hash na password antes de criar o user
+        $validatedData['password'] = Hash::make($validatedData['password']);
+
+        // cria o user
+        $user = User::create($validatedData);
+
+
+        // adiciona moedas a conta do user
+        $transactionData = new Transaction();
+        $transactionData->fill([
+            'type' => 'B',
+            'transaction_datetime' => Carbon::now()->format('Y-m-d H:i:s'),
+            'user_id' => $user->id,
+            'brain_coins' => 10,
+        ]);
+        $transactionData->save();
+        $user->increment('brain_coins_balance', 10);
+        return new UserResource($user);
     }
-    $validatedData['password'] = Hash::make($validatedData['password']);
-    $user = User::create($validatedData);
-    $transactionData = new Transaction();
-    $transactionData->fill([
-        'type' => 'B',
-        'transaction_datetime' => Carbon::now()->format('Y-m-d H:i:s'),
-        'user_id' => $user->id,
-        'brain_coins' => 10,
-    ]);
-    $transactionData->save();
-    $user->increment('brain_coins_balance', 10);
-
-    return new UserResource($user);
-}
 
 
 
@@ -204,13 +251,46 @@ class UserController extends Controller
         // caso nos dados exista uma foto
         if (isset($validatedData['photo'])) {
             $photoContent = base64_decode(preg_replace('/^data:image\/[a-zA-Z]+;base64,/', '', $validatedData['photo']));
-            $photoFilename = $nextId . '_' . uniqid() . '.jpg';
 
+            if ($photoContent === false) {
+                return response()->json(['error' => 'Erro ao decodificar a imagem.'], 422);
+            }
+
+            // verifica o tipo MIME da imagem usando getimagesizefromstring
+            $imageDetails = getimagesizefromstring($photoContent);
+
+            if ($imageDetails === false) {
+                return response()->json(['error' => 'Não foi possível identificar o formato da imagem.'], 422);
+            }
+
+            $mimeType = $imageDetails['mime'];
+
+            // define a extensão com base no tipo MIME
+            $extension = '';
+            switch ($mimeType) {
+                case 'image/jpeg':
+                    $extension = '.jpg';
+                    break;
+                case 'image/png':
+                    $extension = '.png';
+                    break;
+                case 'image/gif':
+                    $extension = '.gif';
+                    break;
+                default:
+                return response()->json(['error' => 'Formato de imagem não suportado.'], 422);
+            }
+
+            // gera um nome para a foto
+            $photoFilename = $nextId . '_' . uniqid() . $extension;
+
+            // guarda a imagem (como esta no config/filesystems.php) (storage/app/public/photos)
 			Storage::disk('public')->put('photos/' . $photoFilename, $photoContent);
 
             // altera o campo da foto com o nome gerado
             $validatedData['photo_filename'] = $photoFilename;
         }
+
 
         // aplica uma Hash na password antes de criar o user
         $validatedData['password'] = Hash::make($validatedData['password']);
@@ -250,6 +330,34 @@ class UserController extends Controller
                 return response()->json(['error' => 'Erro ao decodificar a imagem.'], 422);
             }
 
+
+
+            // verifica o tipo MIME da imagem usando getimagesizefromstring
+            $imageDetails = getimagesizefromstring($photoContent);
+
+            if ($imageDetails === false) {
+                return response()->json(['error' => 'Não foi possível identificar o formato da imagem.'], 422);
+            }
+
+            $mimeType = $imageDetails['mime'];
+
+            // define a extensão com base no tipo MIME
+            $extension = '';
+            switch ($mimeType) {
+                case 'image/jpeg':
+                    $extension = '.jpg';
+                    break;
+                case 'image/png':
+                    $extension = '.png';
+                    break;
+                case 'image/gif':
+                    $extension = '.gif';
+                    break;
+                default:
+                return response()->json(['error' => 'Formato de imagem não suportado.'], 422);
+            }
+
+
             // verifica se o user já tem uma foto armazenada
             if (!empty($user->photo_filename)) {
                 // remove a foto antiga
@@ -257,7 +365,7 @@ class UserController extends Controller
             }
 
             // gera um nome para a foto
-            $photoFilename = $user->id . '_' . uniqid() . '.jpg';
+            $photoFilename = $user->id . '_' . uniqid() . $extension;
 
             // guarda a imagem (como esta no config/filesystems.php) (storage/app/public/photos)
             Storage::disk('public')->put('photos/' . $photoFilename, $photoContent);
