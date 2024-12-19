@@ -8,7 +8,9 @@ use App\Http\Requests\StoreUpdateGameRequest;
 use App\Http\Resources\GameResource;
 use App\Models\Board;
 use App\Models\Game;
+use App\Models\MultiplayerGamePlayed;
 use App\Models\Transaction;
+use App\Models\User;
 use Carbon\Carbon;
 use DateTime;
 use Illuminate\Http\Request;
@@ -35,6 +37,32 @@ class GameController extends Controller
 
         $game = Game::create($data);
 
+        if ($game->type == 'M') {
+            $players = $request->input('players');
+            for ($i = 0; $i < count($players); $i++) {
+                $multiplayerGame = new MultiplayerGamePlayed();
+                $multiplayerGame->game_id = $game->id;
+                $multiplayerGame->user_id = $players[$i]['player']['id'];
+                $multiplayerGame->save();
+
+                $transactionData = new Transaction();
+
+                $transactionData->fill([
+                    'type' => 'I',
+                    'transaction_datetime' => $data['began_at'],
+                    'user_id' => $players[$i]['player']['id'],
+                    'game_id' => $game->id,
+                    'brain_coins' => -5,
+                ]);
+
+                $user = User::find($players[$i]['player']['id']);
+                $user->decrement('brain_coins_balance', 5);
+
+                $transactionData->save();
+            }
+            return new GameResource($game);
+        }
+
         $transactionData = new Transaction();
 
         $transactionData->fill([
@@ -45,7 +73,7 @@ class GameController extends Controller
             'brain_coins' => -1,
         ]);
 
-       $transactionData->save();
+        $transactionData->save();
 
         $request->user()->decrement('brain_coins_balance', 1);
 
@@ -55,11 +83,40 @@ class GameController extends Controller
     public function update(StoreUpdateGameRequest $request, Game $game)
     {
         $data = $request->validated();
-        if($request->input('ended_at') != null){
+        if ($request->input('ended_at') != null) {
             $time =  new Carbon($request->input('ended_at'));
             $data['ended_at'] = $time->toDateTimeString();
         }
+
         $game->update($data);
+
+        if ($game->type == 'M') {
+            $players = $request->input('players');
+            for ($i = 0; $i < count($players); $i++) {
+                $multiplayerGame = MultiplayerGamePlayed::where('game_id', $game->id)->where('user_id', $players[$i]['player']['id'])->first();
+                $multiplayerGame->player_won = ($players[$i]['player']['id'] == $game->winner_user_id) ? 1 : 0;
+                $multiplayerGame->pairs_discovered = $players[$i]['numPars'];
+                $multiplayerGame->save();
+
+                if($players[$i]['player']['id'] == $game->winner_user_id){
+                    $transactionData = new Transaction();
+
+                    $transactionData->fill([
+                        'type' => 'I',
+                        'transaction_datetime' => $data['ended_at'],
+                        'user_id' => $players[$i]['player']['id'],
+                        'game_id' => $game->id,
+                        'brain_coins' => count($players) * 5 - 3,
+                    ]);
+
+                    $transactionData->save();
+
+                    $user = User::find($players[$i]['player']['id']);
+                    $user->increment('brain_coins_balance', count($players) * 5 - 3);
+                }
+            }
+        }
+
         return new GameResource($game);
     }
 
@@ -132,9 +189,11 @@ class GameController extends Controller
 
         $singlePlayerData = Game::where('type', 'S')
             ->where('created_user_id', $userId)
-            ->select('board_id',
+            ->select(
+                'board_id',
                 DB::raw('MIN(total_time) as best_time'),
-                DB::raw('MIN(total_turns_winner) as min_turns'))
+                DB::raw('MIN(total_turns_winner) as min_turns')
+            )
             ->groupBy('board_id')
             ->with('board:id,board_cols,board_rows')
             ->orderBy(DB::raw('(SELECT board_cols FROM boards WHERE boards.id = games.board_id)'), 'asc')
@@ -171,12 +230,11 @@ class GameController extends Controller
                     $q->where('user_id', $userId);
                 });
         })
-        ->with(['board:id,board_cols,board_rows', 'creator:id,nickname', 'winner:id,nickname'])
-        ->select('id', 'type', 'status', 'began_at', 'ended_at', 'total_time', 'total_turns_winner', 'board_id', 'created_user_id', 'winner_user_id', 'created_at')
-        ->orderBy('created_at', 'desc')
-        ->get();
+            ->with(['board:id,board_cols,board_rows', 'creator:id,nickname', 'winner:id,nickname'])
+            ->select('id', 'type', 'status', 'began_at', 'ended_at', 'total_time', 'total_turns_winner', 'board_id', 'created_user_id', 'winner_user_id', 'created_at')
+            ->orderBy('created_at', 'desc')
+            ->get();
 
         return response()->json($games);
     }
-
 }
