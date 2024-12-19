@@ -47,7 +47,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/transactions', [TransactionController::class, 'getTransactions'])->can('player', User::class);
     Route::post('/transactions', [TransactionController::class, 'store'])->can('player', User::class);
     Route::get('/users/{user}/transactions', [TransactionController::class, 'show'])->can('viewAny', User::class);
-
     //Users
     Route::get('/users', [UserController::class, 'index'])->can('viewAny', User::class);
     Route::get('/users/{user}', [UserController::class, 'show'])->can('view', 'user');
