@@ -13,38 +13,21 @@ use App\Models\User;
 use App\Models\Game;
 
 
-
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-
-
 Route::get('/games/topSinglePlayer', [GameController::class, 'topSinglePlayerGames']);
 Route::get('/games/topMultiplayer', [GameController::class, 'topMultiplayerGames']);
-
-
 
 Route::get('/boards', [BoardController::class, 'fetchBoards']);
 Route::get('/boards/all', [BoardController::class, 'index']);
 
-Route::post('/transactions', [TransactionController::class, 'store']);
-
-
 Route::get('/statistics', [StatisticsController::class, 'index']);
 Route::get('/statistics/games-per-month', [StatisticsController::class, 'gamesPerMonth']);
-Route::get('/statistics/purchases-per-month', [StatisticsController::class, 'purchasesPerMonth']);
 Route::get('/statistics/games-per-week', [StatisticsController::class, 'gamesPerWeek']);
+Route::get('/statistics/purchases-per-month', [StatisticsController::class, 'purchasesPerMonth']);
 Route::get('/statistics/purchases-per-week', [StatisticsController::class, 'purchasesPerWeek']);
-Route::get('/statistics/purchases-by-player', [StatisticsController::class, 'purchasesByPlayer']);
-Route::get('/statistics/payment-types', [StatisticsController::class, 'paymentTypes']);
-Route::get('/statistics/payment-value', [StatisticsController::class, 'paymentValuesByMonth']);
-
-
-
-
-Route::get('/games/{game}', [GameController::class, 'show']);
-
 
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/auth/logout', [AuthController::class, 'logout']);
@@ -58,6 +41,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/games', [GameController::class, 'index'])->can('viewAny', User::class);
     Route::put('/games/{game}', [GameController::class, 'update'])->can('player', User::class);
     Route::get('/games/scoreboard/{user}', [GameController::class, 'personalScoreboard'])->can('view', 'user');
+    Route::post('/multiplayerGamesPlayed', [MultiplayerGamePlayedController::class, 'store'])->can('player', User::class);
 
     //Route::get('/transactions', [TransactionController::class, 'index']);
     Route::get('/transactions', [TransactionController::class, 'getTransactions'])->can('player', User::class);
@@ -76,10 +60,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::patch('/users/{user}', [UserController::class, 'updateFoto'])->can('view', 'user');
     Route::post('/users/{user}/delete', [UserController::class, 'checkBeforeDelete'])->can('delete', 'user');
     Route::delete('/users/{user}', [UserController::class, 'destroy'])->can('delete', 'user');
-
-    Route::post('/multiplayerGamesPlayed', [MultiplayerGamePlayedController::class, 'store'])->can('player', User::class);
-
     Route::post('/users/admin', [UserController::class, 'createAdmin'])->can('viewAny', User::class);
+
+    //Statistics
+    Route::get('/statistics/purchases-by-player', [StatisticsController::class, 'purchasesByPlayer'])->can('viewAny', User::class);
+    Route::get('/statistics/payment-types', [StatisticsController::class, 'paymentTypes'])->can('viewAny', User::class);
+    Route::get('/statistics/payment-value', [StatisticsController::class, 'paymentValuesByMonth'])->can('viewAny', User::class);
 });
 Route::post('/auth/login', [AuthController::class, 'login']);
 Route::post('/users', [UserController::class, 'createUser']);
