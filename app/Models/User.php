@@ -26,6 +26,8 @@ class User extends Authenticatable
         'blocked',
         'nickname',
         'brain_coins_balance',
+        'photo_filename',
+        'type',
     ];
 
     /**
