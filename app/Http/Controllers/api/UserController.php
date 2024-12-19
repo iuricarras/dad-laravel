@@ -83,7 +83,6 @@ class UserController extends Controller
 
     $query = $user->games()->with('board')->orderBy('began_at', 'desc');
 
-    // Aplica os filtros se fornecidos
     if ($type) {
         $query->where('type', $type);
     }
@@ -127,21 +126,16 @@ class UserController extends Controller
     }
 
 
-    // função para verificar a pass e despois apaga o user
     public function checkBeforeDelete(Request $request, User $user)
     {
-        // valida os dados(para não fazer outro StoreRequest)
         $request->validate([
             'password' => 'required|string',
         ]);
 
-        // verificar se password é válida
         if (!Hash::check($request->password, $user->password)) {
             return response()->json([
                 'error' => 'Senha inválida'], 403);
         }
-
-        // se a password for válida, chamar a função abaixo (destroy)
         return $this->destroy($user);
     }
 
@@ -167,14 +161,11 @@ class UserController extends Controller
     public function createUser(StoreCreateUserRequest $request, User $user)
     {
 
-        // valida os dados
         $validatedData = $request->validated();
 
-        // calcula o próximo ID
         $nextId = User::max('id') + 1;
 
 
-        // caso nos dados exista uma foto
         if (isset($validatedData['photo'])) {
             $photoContent = base64_decode(preg_replace('/^data:image\/[a-zA-Z]+;base64,/', '', $validatedData['photo']));
 
@@ -182,7 +173,6 @@ class UserController extends Controller
                 return response()->json(['error' => 'Erro ao decodificar a imagem.'], 422);
             }
 
-            // verifica o tipo MIME da imagem usando getimagesizefromstring
             $imageDetails = getimagesizefromstring($photoContent);
 
             if ($imageDetails === false) {
@@ -191,7 +181,6 @@ class UserController extends Controller
 
             $mimeType = $imageDetails['mime'];
 
-            // define a extensão com base no tipo MIME
             $extension = '';
             switch ($mimeType) {
                 case 'image/jpeg':
@@ -206,25 +195,18 @@ class UserController extends Controller
                 default:
                 return response()->json(['error' => 'Formato de imagem não suportado.'], 422);
             }
-
-            // gera um nome para a foto
             $photoFilename = $nextId . '_' . uniqid() . $extension;
 
-            // guarda a imagem (como esta no config/filesystems.php) (storage/app/public/photos)
 			Storage::disk('public')->put('photos/' . $photoFilename, $photoContent);
 
-            // altera o campo da foto com o nome gerado
             $validatedData['photo_filename'] = $photoFilename;
         }
 
-        // aplica uma Hash na password antes de criar o user
         $validatedData['password'] = Hash::make($validatedData['password']);
 
-        // cria o user
         $user = User::create($validatedData);
 
 
-        // adiciona moedas a conta do user
         $transactionData = new Transaction();
         $transactionData->fill([
             'type' => 'B',
@@ -237,18 +219,13 @@ class UserController extends Controller
         return new UserResource($user);
     }
 
-
-
     public function createAdmin(StoreCreateUserRequest $request, User $user)
     {
 
-        // valida os dados
         $validatedData = $request->validated();
 
-        // calcula o próximo ID
         $nextId = User::max('id') + 1;
 
-        // caso nos dados exista uma foto
         if (isset($validatedData['photo'])) {
             $photoContent = base64_decode(preg_replace('/^data:image\/[a-zA-Z]+;base64,/', '', $validatedData['photo']));
 
@@ -256,7 +233,6 @@ class UserController extends Controller
                 return response()->json(['error' => 'Erro ao decodificar a imagem.'], 422);
             }
 
-            // verifica o tipo MIME da imagem usando getimagesizefromstring
             $imageDetails = getimagesizefromstring($photoContent);
 
             if ($imageDetails === false) {
@@ -265,7 +241,6 @@ class UserController extends Controller
 
             $mimeType = $imageDetails['mime'];
 
-            // define a extensão com base no tipo MIME
             $extension = '';
             switch ($mimeType) {
                 case 'image/jpeg':
@@ -281,58 +256,40 @@ class UserController extends Controller
                 return response()->json(['error' => 'Formato de imagem não suportado.'], 422);
             }
 
-            // gera um nome para a foto
             $photoFilename = $nextId . '_' . uniqid() . $extension;
 
-            // guarda a imagem (como esta no config/filesystems.php) (storage/app/public/photos)
 			Storage::disk('public')->put('photos/' . $photoFilename, $photoContent);
 
-            // altera o campo da foto com o nome gerado
             $validatedData['photo_filename'] = $photoFilename;
         }
 
-
-        // aplica uma Hash na password antes de criar o user
         $validatedData['password'] = Hash::make($validatedData['password']);
 
-        // acrescenta o tipo de user nos dados validados
         $validatedData['type'] = 'A';
 
 
-        // cria o user
         $user = User::create($validatedData);
 
         return new UserResource($user);
     }
 
-
-
-
     public function updateFoto(StoreUpdateUserFotoRequest $request, User $user)
     {
 
-        // valida os dados
         $validatedData = $request->validated();
 
 
-        // verifica se a password existe no pedido,
-        // antes de refazer e alterar a HASH da password
         if ($request->has('password') == $user->password) {
             $validatedData['password'] = Hash::make($validatedData['password']);
         }
 
-        // verifica se a foto existe
         if ($request->has('photo')) {
-            // remove o prefixo BASE64 e decodifica a imagem
             $photoContent = base64_decode(preg_replace('/^data:image\/[a-zA-Z]+;base64,/', '', $validatedData['photo']));
 
             if ($photoContent === false) {
                 return response()->json(['error' => 'Erro ao decodificar a imagem.'], 422);
             }
 
-
-
-            // verifica o tipo MIME da imagem usando getimagesizefromstring
             $imageDetails = getimagesizefromstring($photoContent);
 
             if ($imageDetails === false) {
@@ -341,7 +298,6 @@ class UserController extends Controller
 
             $mimeType = $imageDetails['mime'];
 
-            // define a extensão com base no tipo MIME
             $extension = '';
             switch ($mimeType) {
                 case 'image/jpeg':
@@ -357,28 +313,19 @@ class UserController extends Controller
                 return response()->json(['error' => 'Formato de imagem não suportado.'], 422);
             }
 
-
-            // verifica se o user já tem uma foto armazenada
             if (!empty($user->photo_filename)) {
-                // remove a foto antiga
                 Storage::disk('public')->delete('photos/' . $user->photo_filename);
             }
 
-            // gera um nome para a foto
             $photoFilename = $user->id . '_' . uniqid() . $extension;
 
-            // guarda a imagem (como esta no config/filesystems.php) (storage/app/public/photos)
             Storage::disk('public')->put('photos/' . $photoFilename, $photoContent);
 
-            // atualiza o nome da foto na base de dados
             $validatedData['photo_filename'] = $photoFilename;
 
-            // remove o campo da foto nos dados a atualizar
             unset($validatedData['photo']);
         }
 
-
-        // atualiza o resto dos dados do user
         $user->update($validatedData);
 
         return new UserResource($user);

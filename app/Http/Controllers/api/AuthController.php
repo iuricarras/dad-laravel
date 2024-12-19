@@ -13,7 +13,6 @@ class AuthController extends Controller
 {
     private function purgeExpiredTokens()
     {
-        // Only deletes if token expired 2 hours ago
         $dateTimetoPurge = now()->subHours(2);
         DB::table('personal_access_tokens')->where('expires_at', '<', $dateTimetoPurge)->delete();
     }
@@ -46,7 +45,7 @@ class AuthController extends Controller
     }
     public function refreshToken(Request $request)
     {
-        // Revokes current token and creates a new token
+
         $this->purgeExpiredTokens();
         $this->revokeCurrentToken($request->user());
         $token = $request->user()->createToken(

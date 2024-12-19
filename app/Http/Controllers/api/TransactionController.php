@@ -24,10 +24,8 @@ class TransactionController extends Controller
 
         $offset = ($page - 1) * $itemsPerPage;
 
-        // Consulta usando o ID do usuário recebido pela URL
         $query = Transaction::where('user_id', $user);
 
-        // Aplica o filtro de tipo, se fornecido
         if ($type) {
             $query->where('type', $type);
         }
@@ -44,7 +42,7 @@ class TransactionController extends Controller
             'total' => $totalTransactions,
             'page' => $page,
             'itemsPerPage' => $itemsPerPage,
-            'result_user' => $user, // Retorna o usuário da URL
+            'result_user' => $user,
         ]);
     }
 
@@ -86,11 +84,9 @@ class TransactionController extends Controller
         $userId = $request->user()->id;
         $data = $request->validated();
         $data['user_id'] = $userId;
-        $data['transaction_datetime'] = Carbon::parse($data['transaction_datetime'])->format('Y-m-d H:i:s'); // Converte para o formato MySQL
+        $data['transaction_datetime'] = Carbon::parse($data['transaction_datetime'])->format('Y-m-d H:i:s');
 
-        // Criação da transação
         $transaction = Transaction::create($data);
-        //decremente os brain_coins do usuário
 
         $request->user()->increment('brain_coins_balance', $data['brain_coins']);
 
