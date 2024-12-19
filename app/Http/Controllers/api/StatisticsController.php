@@ -48,6 +48,7 @@ class StatisticsController extends Controller
     public function purchasesPerMonth()
     {
         $purchasesPerMonth = DB::table('transactions')
+            ->where ('type', 'P')
             ->selectRaw('YEAR(transaction_datetime) as year, MONTH(transaction_datetime) as month, COUNT(*) as total_purchases')
             ->groupBy('year', 'month')
             ->orderBy('year', 'asc')
@@ -72,6 +73,7 @@ class StatisticsController extends Controller
     public function purchasesPerWeek()
     {
         $purchasesPerWeek = DB::table('transactions')
+            ->where ('type', 'P')
             ->selectRaw('YEAR(transaction_datetime) as year, WEEKOFYEAR(transaction_datetime) as week, COUNT(*) as total_purchases')
             ->groupBy('year', 'week')
             ->orderBy('year', 'asc')
@@ -95,6 +97,30 @@ class StatisticsController extends Controller
             ->sum('transactions.euros');
 
         return response()->json(['total_purchases' => $totalPurchases]);
+    }
+
+    public function paymentTypes()
+    {
+        $paymentTypes = DB::table('transactions')
+            ->where ('type', 'P')
+            ->select('payment_type', DB::raw('COUNT(*) as total'))
+            ->groupBy('payment_type')
+            ->orderByDesc('total')
+            ->get();
+
+        return response()->json($paymentTypes);
+    }
+
+    public function paymentValuesByMonth(){
+        $paymentValues = DB::table('transactions')
+            ->where ('type', 'P')
+            ->selectRaw('YEAR(transaction_datetime) as year, MONTH(transaction_datetime) as month, SUM(euros) as total')
+            ->groupBy('year', 'month')
+            ->orderBy('year', 'asc')
+            ->orderBy('month', 'asc')
+            ->get();
+
+        return response()->json($paymentValues);
     }
 
 

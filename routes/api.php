@@ -35,6 +35,8 @@ Route::get('/statistics/purchases-per-month', [StatisticsController::class, 'pur
 Route::get('/statistics/games-per-week', [StatisticsController::class, 'gamesPerWeek']);
 Route::get('/statistics/purchases-per-week', [StatisticsController::class, 'purchasesPerWeek']);
 Route::get('/statistics/purchases-by-player', [StatisticsController::class, 'purchasesByPlayer']);
+Route::get('/statistics/payment-types', [StatisticsController::class, 'paymentTypes']);
+Route::get('/statistics/payment-value', [StatisticsController::class, 'paymentValuesByMonth']);
 
 
 
