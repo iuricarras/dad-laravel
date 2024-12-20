@@ -36,7 +36,7 @@ class UserController extends Controller
     if ($blocked != 'All') {
         $query->where('blocked', $blocked === 'Yes');
     }
-
+    $query->orderBy('nickname', 'asc');
     $totalUsers = $query->count();
     $users = $query->skip(($page - 1) * $itemsPerPage)
                    ->take($itemsPerPage)
