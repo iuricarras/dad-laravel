@@ -36,6 +36,11 @@ class UserController extends Controller
     if ($blocked != 'All') {
         $query->where('blocked', $blocked === 'Yes');
     }
+
+    if ($request->has('search')) {
+        $query->where('nickname', 'LIKE', '%' . $request->input('search') . '%');
+    }
+
     $query->orderBy('nickname', 'asc');
     $totalUsers = $query->count();
     $users = $query->skip(($page - 1) * $itemsPerPage)
